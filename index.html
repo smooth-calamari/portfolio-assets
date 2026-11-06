@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vinh Nguyen - Menu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+  html, body { margin: 0; padding: 0; background: #0a110d; overflow: hidden; }
+  .p3-root, .p3-root * { box-sizing: border-box; }
+  .p3-root {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    height: 100svh;
+    min-height: 480px;
+    background: #0a110d;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Bebas Neue', Impact, 'Arial Narrow', sans-serif;
+  }
+  .p3-video {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    opacity: 0.92;
+    z-index: 0;
+    pointer-events: none;
+  }
+  .p3-vignette {
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 75% 70% at 50% 52%, rgba(5,10,7,0.82) 0%, rgba(5,10,7,0.55) 55%, rgba(5,10,7,0) 100%);
+    z-index: 2;
+    pointer-events: none;
+  }
+  .p3-scanlines {
+    position: absolute; inset: 0;
+    background-image: repeating-linear-gradient(
+      0deg, transparent, transparent 3px,
+      rgba(0,0,0,0.07) 3px, rgba(0,0,0,0.07) 4px);
+    z-index: 3;
+    pointer-events: none;
+  }
+  .p3-stripe  { position:absolute; right:0;   top:0; bottom:0; width:5px; background:#b76a3f; z-index:10; }
+  .p3-stripe2 { position:absolute; right:9px; top:0; bottom:0; width:2px; background:rgba(183,106,63,0.28); z-index:10; }
+
+  /* ---------- top-left cards ---------- */
+  .p3-top {
+    position: absolute;
+    top: 5vh; left: 16vw;
+    z-index: 30;
+    display: flex;
+    align-items: stretch;
+    gap: 16px;
+    animation: p3-fade 0.6s ease 0.5s both;
+  }
+  .p3-info, .p3-links {
+    background: #f4f0e4;
+    color: #0d1812;
+    border: 2px solid #0d1812;
+    outline: 2px solid #f4f0e4;
+    line-height: 1;
+  }
+  .p3-info { padding: 6px 16px 5px; }
+  .p3-info b { display:block; font-weight: normal; font-size: 30px; letter-spacing: 3px; }
+  .p3-info span { display:block; font-size: 12px; letter-spacing: 3px; color: #b76a3f; text-align: right; }
+  .p3-links { display: flex; align-items: center; gap: 6px; padding: 6px 8px; }
+  .p3-btn {
+    display: block;
+    padding: 9px 13px 7px;
+    font-size: 18px;
+    letter-spacing: 2px;
+    color: #0d1812 !important;
+    text-decoration: none !important;
+    border: 2px solid transparent;
+    clip-path: polygon(8% 0, 100% 0, 92% 100%, 0 100%);
+    transition: background 0.12s ease, color 0.12s ease;
+  }
+  .p3-btn:hover, .p3-btn:focus-visible { background: #0d1812; color: #f4f0e4 !important; outline: none; }
+  .p3-btn.home { background: #b76a3f; color: #f4f0e4 !important; }
+  .p3-btn.home:hover { background: #0d1812; }
+
+  /* ---------- the menu (static, no JS needed to appear) ---------- */
+  .p3-menu {
+    position: relative;
+    z-index: 20;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 0;
+    transform: rotate(-8deg);
+  }
+  .p3-row {
+    position: relative;
+    display: block;
+    cursor: pointer;
+    line-height: 1;
+    text-decoration: none !important;
+    animation: p3-slide 0.5s cubic-bezier(0.22,1,0.36,1) both;
+  }
+  .p3-row:nth-child(1) { font-size: min(128px, 12vw);   margin: 0 0 0 -0.47em;   animation-delay: 0.05s; }
+  .p3-row:nth-child(2) { font-size: min(108px, 9.5vw); margin: 0.13em 0 0 0.41em; animation-delay: 0.13s; }
+  .p3-row:nth-child(3) { font-size: min(92px, 8vw);    margin: 0.15em 0 0 -0.26em; animation-delay: 0.21s; }
+  .p3-row:nth-child(4) { font-size: min(108px, 12vw);   margin: 0.13em 0 0 0.63em;  animation-delay: 0.29s; }
+
+  .p3-hl, .p3-hl2 {
+    position: absolute;
+    left: -0.62em;
+    top: 50%;
+    width: calc(100% + 1.24em);
+    height: 0.98em;
+    transform: translateY(-50%) scaleX(0);
+    transform-origin: left center;
+    z-index: -1;
+    pointer-events: none;
+  }
+  .p3-hl  { background: #f4f0e4; transition: transform 0.22s cubic-bezier(0.22,1,0.36,1); }
+  .p3-hl2 { background: #b76a3f; margin: 0.07em 0 0 0.09em; transition: transform 0.3s cubic-bezier(0.22,1,0.36,1) 0.04s; }
+  .p3-row.active .p3-hl, .p3-row.active .p3-hl2 { transform: translateY(-50%) scaleX(1); }
+
+  /* pointy slab shapes, one per row (all sizes are in em, so they scale with the text) */
+  .p3-row:nth-child(1) .p3-hl, .p3-row:nth-child(1) .p3-hl2 { clip-path: polygon(0.39em 0, 100% 0.29em, calc(100% - 0.54em) 100%, 0.10em 100%, 0 0.70em); }
+  .p3-row:nth-child(2) .p3-hl, .p3-row:nth-child(2) .p3-hl2 { clip-path: polygon(0.22em 0, calc(100% - 0.29em) 0, 100% 0.61em, calc(100% - 0.69em) 100%, 0 0.84em); }
+  .p3-row:nth-child(3) .p3-hl, .p3-row:nth-child(3) .p3-hl2 { clip-path: polygon(0.47em 0, 100% 0.22em, calc(100% - 0.41em) 100%, 0.06em 100%, 0 0.54em); }
+  .p3-row:nth-child(4) .p3-hl, .p3-row:nth-child(4) .p3-hl2 { clip-path: polygon(0.29em 0, calc(100% - 0.20em) 0.06em, 100% 0.49em, calc(100% - 0.61em) 100%, 0 0.76em); }
+
+  .p3-label {
+    display: block;
+    white-space: nowrap;
+    color: #f4f0e4;
+    letter-spacing: 3px;
+    line-height: 0.85;
+    position: relative;
+    z-index: 1;
+    transform: skewX(-8deg);
+    text-shadow: 0 2px 16px rgba(0,0,0,0.8);
+    transition: color 0.12s ease, opacity 0.12s ease, text-shadow 0.12s ease;
+  }
+  .p3-row.active .p3-label { color: #0d1812; text-shadow: none; }
+  .p3-row:hover:not(.active) .p3-label { color: #ffffff; }
+
+  /* ---------- bottom-right hint ---------- */
+  .p3-hint {
+    position: absolute;
+    bottom: 24px; right: 30px;
+    z-index: 20;
+    display: flex; flex-direction: column;
+    align-items: flex-end; gap: 5px;
+    animation: p3-fade 0.6s ease 0.9s both;
+  }
+  .p3-hint-row { display: flex; align-items: center; gap: 8px; font-size: 14px; letter-spacing: 2px; color: rgba(244,240,228,0.55); }
+  .p3-hint-key { border: 1px solid rgba(244,240,228,0.4); border-radius: 3px; padding: 1px 6px; font-size: 12px; }
+
+  @keyframes p3-slide { from { opacity: 0; transform: translateX(-36px); } to { opacity: 1; transform: translateX(0); } }
+  @keyframes p3-fade  { from { opacity: 0; } to { opacity: 1; } }
+
+  @media (max-width: 900px) {
+    .p3-top { left: 50%; transform: translateX(-50%); top: 14px; width: max-content; max-width: 96vw; animation: none; }
+    .p3-info { display: none; }
+    .p3-links { flex-wrap: wrap; justify-content: center; }
+    .p3-btn { font-size: 15px; padding: 7px 10px 5px; }
+  }
+  @media (max-width: 700px) { .p3-hint { display: none; } }
+</style>
+</head>
+<body>
+<div class="p3-root">
+  <!-- Background video (hosted on GitHub via jsDelivr) -->
+  <video class="p3-video" id="p3-video" src="Website_BG_web.mp4"
+         autoplay loop muted playsinline preload="auto"></video>
+
+  <div class="p3-vignette"></div>
+  <div class="p3-scanlines"></div>
+  <div class="p3-stripe"></div>
+  <div class="p3-stripe2"></div>
+
+  <div class="p3-top">
+    <div class="p3-info"><b>VINH NGUYEN</b><span>PORTFOLIO</span></div>
+    <div class="p3-links">
+      <a class="p3-btn home" href="https://vinhnguyen.carrd.co/#home" target="_top">HOME</a>
+      <a class="p3-btn" href="https://www.instagram.com/smooth_calamari/" target="_blank" rel="noopener">INSTAGRAM</a>
+      <a class="p3-btn" href="https://vimeo.com/user205992193" target="_blank" rel="noopener">VIMEO</a>
+      <a class="p3-btn" href="#" id="p3-email">EMAIL</a>
+      <a class="p3-btn" href="https://drive.google.com/file/d/1_93me2LB3nyj-qSGgzIB6Z4ltoFoIAF3/view?usp=sharing" target="_blank" rel="noopener">RESUME</a>
+    </div>
+  </div>
+
+  <!-- THE MENU: edit the words and links right here -->
+  <div class="p3-menu" id="p3-menu">
+    <a class="p3-row active" href="https://vinhnguyen.carrd.co/#animation" target="_top">
+      <div class="p3-hl2"></div><div class="p3-hl"></div>
+      <span class="p3-label" style="opacity:1">ANIMATION</span>
+    </a>
+    <a class="p3-row" href="https://vinhnguyen.carrd.co/#illustration" target="_top">
+      <div class="p3-hl2"></div><div class="p3-hl"></div>
+      <span class="p3-label" style="opacity:0.78">ILLUSTRATION</span>
+    </a>
+    <a class="p3-row" href="https://vinhnguyen.carrd.co/#characterdesign" target="_top">
+      <div class="p3-hl2"></div><div class="p3-hl"></div>
+      <span class="p3-label" style="opacity:0.56">CHARACTER DESIGN</span>
+    </a>
+    <a class="p3-row" href="https://vinhnguyen.carrd.co/#about" target="_top">
+      <div class="p3-hl2"></div><div class="p3-hl"></div>
+      <span class="p3-label" style="opacity:0.34">ABOUT ME</span>
+    </a>
+  </div>
+
+  <div class="p3-hint">
+    <div class="p3-hint-row"><span class="p3-hint-key">↑↓</span><span>NAVIGATE</span></div>
+    <div class="p3-hint-row"><span class="p3-hint-key">↵</span><span>CONFIRM</span></div>
+  </div>
+</div>
+
+<script>
+/* Extras only: highlight follows the mouse/arrow keys, email link, video looping. */
+(function () {
+  try {
+    var rows = Array.prototype.slice.call(document.querySelectorAll("#p3-menu .p3-row"));
+    var labels = rows.map(function (r) { return r.querySelector(".p3-label"); });
+    var active = 0;
+    function render() {
+      rows.forEach(function (row, i) {
+        var dist = Math.abs(i - active);
+        row.classList.toggle("active", i === active);
+        labels[i].style.opacity = i === active ? 1 : Math.max(0.3, 1 - dist * 0.22);
+      });
+    }
+    rows.forEach(function (row, i) {
+      row.addEventListener("mouseenter", function () { active = i; render(); });
+      row.addEventListener("focus",      function () { active = i; render(); });
+    });
+    render();
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "ArrowUp")   { e.preventDefault(); active = Math.max(0, active - 1); render(); }
+      if (e.key === "ArrowDown") { e.preventDefault(); active = Math.min(rows.length - 1, active + 1); render(); }
+      if (e.key === "Enter")     { window.top.location.href = rows[active].href; }
+    });
+  } catch (err) {}
+  try {
+    var EMAIL_USER = "vhn7006", EMAIL_HOST = "g.rit.edu";
+    var emailBtn = document.getElementById("p3-email");
+    if (emailBtn) { emailBtn.href = "mailto:" + EMAIL_USER + "@" + EMAIL_HOST; emailBtn.target = "_top"; }
+  } catch (err) {}
+  try {
+    var video = document.getElementById("p3-video");
+    if (video) {
+      video.muted = true;
+      var play = function () { var p = video.play(); if (p && p.catch) p.catch(function () {}); };
+      video.addEventListener("ended", function () { video.currentTime = 0; play(); });
+      video.addEventListener("pause", function () { if (!document.hidden) play(); });
+      document.addEventListener("visibilitychange", function () { if (!document.hidden) play(); });
+      play();
+    }
+  } catch (err) {}
+})();
+</script>
+</body>
+</html>
